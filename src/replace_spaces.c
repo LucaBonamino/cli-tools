@@ -42,8 +42,10 @@ int main(int argc, char *argv[]) {
 		struct dirent *entry;
 		DIR *dp = opendir(dir_name);
 
-		if (dp == NULL)
+		if (dp == NULL){
 			null_opendir_pointer_error_handling(dir_name);
+			return EXIT_FAILURE;
+		}
 		
 
 		while ((entry = readdir(dp)) != NULL){
@@ -126,8 +128,6 @@ void null_opendir_pointer_error_handling(const char *directory_name){
 		default:
 			fprintf(stderr, "Error opening \"%s\": %s\n", directory_name, strerror(errno));
 	}
-	exit(EXIT_FAILURE);
-
 }
 
 
