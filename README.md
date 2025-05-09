@@ -8,7 +8,8 @@ A collection of lightweight, self-contained command-line utilities written in C.
 2. **`src/hashsum.c`**  
    Compute a hash of input text using one of these algorithms:  
    - `crc32`  
-   - `sha256`  
+   - `sha256`
+   - `sha512`  
    - `sha1`  
    - `md5`  
    - `poseidon`  
