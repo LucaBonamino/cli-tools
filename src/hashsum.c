@@ -137,8 +137,7 @@ char *hash_buffer(const unsigned char *buf, size_t len, hashalg_t alg) {
         MD5(buf, len, digest);
         dlen = MD5_DIGEST_LENGTH; break;
       case POSEIDON_ALG:
-        // TODO: call your Poseidon implementation here,
-        // fill `digest` and set `dlen` appropriately.
+        // TODO: Call poseidon implementation here.
         fprintf(stderr, "POSEIDON not yet implemented\n");
         return NULL;
       default:

@@ -18,7 +18,7 @@ mv replace_spaces ~/.local/bin
 ```
 ## Usage
 
-### replacxe spaces
+### replace spaces
 ```bash
 replace_spaces --help
 Usage: rename_spaces [-v|--verbose] [-d|--dir <directory>] [filename]
