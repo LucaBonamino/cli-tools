@@ -26,11 +26,17 @@ Usage: rename_spaces [-v|--verbose] [-d|--dir <directory>] [filename]
 
 ### Hashsum
 Hash a text of the content of a file with one of the following alorithms
+- crc32
 - sha256
 - sha1
 - md5
 - poseidon
 
+compile with 
+```bash
+gcc -O2 -Wall src/hashsum.c -lssl -lcrypto -lz
+```
+execute
 ```bash
 hashsum --help
 Usage: hashsum [-a|--alg][-f|--file <filename>] [text]
