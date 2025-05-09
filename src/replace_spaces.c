@@ -78,7 +78,7 @@ args_t parse_dir_arg(int argc, char *argv[]){
 
 	int opt, option_index = 0;
 
-	while ((opt = getopt_long(argc, argv, "d:", long_options, &option_index)) != -1){
+	while ((opt = getopt_long(argc, argv, "d:v:", long_options, &option_index)) != -1){
 		switch (opt){
 			case 'd':
 				args.dir_name = optarg;
@@ -100,7 +100,7 @@ args_t parse_dir_arg(int argc, char *argv[]){
 
 	if (args.dir_name == NULL && args.file_name == NULL){
 		fprintf(stderr, "Error: you must specify either -d/--dir <directory> or a filename.\n"
-				"Usage: %s [-d|--dir <directory>] [filename]\n", argv[0]
+				"Usage: %s [-v|--verbose][-d|--dir <directory>] [filename]\n", argv[0]
 				);
 		exit(EXIT_FAILURE);
 	}
