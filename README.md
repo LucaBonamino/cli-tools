@@ -1,6 +1,18 @@
 # cli-tools
 A collection of lightweight, self-contained command-line utilities written in C. Each tool is a single .c file in <code>src/</code>, designed for easy compilation and instant use. Perfect for UNIX-style workflows—just build, drop into <code>~/.local/bin</code> (or <code>/usr/local/bin</code>), and run from anywhere.
 
+## Avaiable tools
+1. **`src/replace_spaces.c`**  
+   Rename files by replacing spaces with underscores.
+
+2. **`src/hashsum.c`**  
+   Compute a hash of input text using one of these algorithms:  
+   - `crc32`  
+   - `sha256`  
+   - `sha1`  
+   - `md5`  
+   - `poseidon`  
+   
 ## Installation
 
 Each tool is a single `.c` file in `src/`. To compile and install:
@@ -18,7 +30,7 @@ mv replace_spaces ~/.local/bin
 ```
 ## Usage
 
-### replace spaces
+### Replace spaces
 ```bash
 replace_spaces --help
 Usage: rename_spaces [-v|--verbose] [-d|--dir <directory>] [filename]
