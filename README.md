@@ -6,7 +6,7 @@ A collection of lightweight, self-contained command-line utilities written in C.
 Each tool is a single `.c` file in `src/`. To compile and install:
 
 ```bash
-# 1. Compile (example for rename_spaces.c)
+# 1. Compile (example for replace_spaces.c)
 gcc -O2 -Wall -o replace_spaces src/replace_spaces.c
 
 # 2a. Install system‐wide (requires sudo)
@@ -17,7 +17,20 @@ mkdir -p ~/.local/bin
 mv replace_spaces ~/.local/bin
 ```
 ## Usage
+
+### replacxe spaces
 ```bash
 replace_spaces --help
 Usage: rename_spaces [-v|--verbose] [-d|--dir <directory>] [filename]
 ```
+
+### Hashsum
+Hash a text of the content of a file with one of the following alorithms
+- sha256
+- sha1
+- md5
+- poseidon
+
+```bash
+hashsum --help
+Usage: hashsum [-a|--alg][-f|--file <filename>] [text]
