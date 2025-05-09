@@ -30,10 +30,8 @@ int main(int argc, char *argv[]) {
 			VERBOSE("File '%s' does not contain space in name. Doing nothing.\n", args.file_name);
 			return EXIT_FAILURE;
 		}
-		else{
-			size_t len = strlen(args.file_name);
+		else
 			rename_file(args.file_name, ".");
-		}
 	}
 	else{
 		
@@ -79,7 +77,6 @@ args_t parse_dir_arg(int argc, char *argv[]){
 	};
 
 	int opt, option_index = 0;
-	char *dir_name = NULL;
 
 	while ((opt = getopt_long(argc, argv, "d:", long_options, &option_index)) != -1){
 		switch (opt){
