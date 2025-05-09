@@ -88,7 +88,7 @@ args_t parse_dir_arg(int argc, char *argv[]){
 				break;
 			case '?':
 			default:
-				fprintf(stderr, "Usge: %s [--dir <directory>]\n", argv[0]);
+				fprintf(stderr, "Usge: %s [-v|--verbose][-d|--dir <directory>] [filename]\n", argv[0]);
 				exit(EXIT_FAILURE);
 		}
 	}
