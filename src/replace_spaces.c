@@ -21,13 +21,15 @@ args_t parse_dir_arg(int argc, char *argv[]);
 void null_opendir_pointer_error_handling(const char *directory_name);
 void rename_file(const char *name, const char *dir_name);
 
-void main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
 		
 	args_t args = parse_dir_arg(argc, argv);
 
 	if (args.file_name != NULL){
-		if (strchr(args.file_name, ' ' ) == NULL)
+		if (strchr(args.file_name, ' ' ) == NULL){
 			VERBOSE("File '%s' does not contain space in name. Doing nothing.\n", args.file_name);
+			return EXIT_FAILURE;
+		}
 		else{
 			size_t len = strlen(args.file_name);
 			rename_file(args.file_name, ".");
@@ -60,6 +62,7 @@ void main(int argc, char *argv[]) {
 	
 		closedir(dp);
 	}
+	return EXIT_SUCCESS;
 }
 
 
