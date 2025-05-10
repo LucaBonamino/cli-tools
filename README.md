@@ -12,7 +12,7 @@ A collection of lightweight, self-contained command-line utilities written in C.
    - `sha512`  
    - `sha1`  
    - `md5`  
-   - `poseidon`  
+   - `poseidon` - currently not usable from the tool. The source code will be taken from [c-reference-signer]{https://github.com/MinaProtocol/c-reference-signer}.
    
 ## Installation
 
