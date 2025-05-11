@@ -50,6 +50,8 @@ arg_t parse_args(int argc, char *argv[]);
 int hash_buffer(hashalg_t alg, unsigned char *buf, size_t buf_len, unsigned char *out_digest);
 size_t hash_digest_size(hashalg_t alg);
 static bool poseidon_hash_bytes(uint8_t *out, const uint8_t *buf, size_t len);
+static const char *algorithm_list(void);
+void print_usage(const char *prog);
 
 int main(int argc, char *argv[]){
 
@@ -87,6 +89,28 @@ int main(int argc, char *argv[]){
 	return EXIT_SUCCESS;
 }
 
+static const char *algorithm_list(void) {
+    static char buf[128];
+    buf[0] = '\0';
+
+    for (int i = 0; hashalg_map[i].name; i++) {
+        if (i > 0) {
+            strncat(buf, "|", sizeof(buf) - strlen(buf) - 1);
+        }
+        strncat(buf,
+                hashalg_map[i].name,
+                sizeof(buf) - strlen(buf) - 1);
+    }
+    return buf;
+}
+
+void print_usage(const char *prog) {
+    fprintf(stderr,
+        "Usage: %s [-a|--algorithm <%s>] [-f|--file <filename>] [text]\n",
+        prog,
+        algorithm_list());
+}
+
 arg_t parse_args(int argc, char *argv[]){
 
 	static struct option long_options[] = {
@@ -120,7 +144,7 @@ arg_t parse_args(int argc, char *argv[]){
 				break;
 			case '?':
 			default:
-				fprintf(stderr, "Usge: %s [-a|--algorithm <hashing algorithm>] [-f|--file <filename>] [text]\n", argv[0]);
+				print_usage(argv[0]);
 				exit(EXIT_FAILURE);
 			}
 	}
@@ -130,9 +154,8 @@ arg_t parse_args(int argc, char *argv[]){
 	}
 
 	if (args.text == NULL && args.filename == NULL){
-		fprintf(stderr, "Error: you must specify either -f/--file <directory> or a text to hash.\n"
-						"Usage: %s [-a|--alg <hashing algorithm>][-f|--file <filename>] [text]\n",
-				argv[0]);
+		fprintf(stderr, "Error: you must specify either -f/--file <directory> or a text to hash.\n");
+		print_usage(argv[0]);
 		exit(EXIT_FAILURE);
 	}
 	return args;
