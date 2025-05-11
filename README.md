@@ -61,7 +61,7 @@ Get the poseidon required files from the repository [c-reference-signer](https:/
 git clone https://github.com/MinaProtocol/c-reference-signer.git
 ```
 
-Compile <i>hashsum.c</i> providing the poseidon header file
+Compile <i>hashsum.c</i> providing the poseidon and crypto files
 
 ```bash
 gcc -O2 -Wall \
