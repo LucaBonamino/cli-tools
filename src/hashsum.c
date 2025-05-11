@@ -3,8 +3,17 @@
 #include <getopt.h>
 #include <string.h>
 #include <openssl/evp.h>
-#include <zlib.h>
 #include <assert.h>
+#include "poseidon.h"
+#include "crypto.h"  
+
+typedef unsigned long uLong;
+typedef unsigned char  Bytef;
+typedef unsigned int   uInt;
+
+#define Z_NULL ((const Bytef*)0)
+
+extern uLong crc32(uLong crc, const Bytef *buf, uInt len);
 
 typedef enum
 {
@@ -40,6 +49,9 @@ typedef struct
 arg_t parse_args(int argc, char *argv[]);
 int hash_buffer(hashalg_t alg, unsigned char *buf, size_t buf_len, unsigned char *out_digest);
 size_t hash_digest_size(hashalg_t alg);
+static bool poseidon_hash_bytes(uint8_t *out, const uint8_t *buf, size_t len);
+static const char *algorithm_list(void);
+void print_usage(const char *prog);
 
 int main(int argc, char *argv[]){
 
@@ -77,6 +89,28 @@ int main(int argc, char *argv[]){
 	return EXIT_SUCCESS;
 }
 
+static const char *algorithm_list(void) {
+    static char buf[128];
+    buf[0] = '\0';
+
+    for (int i = 0; hashalg_map[i].name; i++) {
+        if (i > 0) {
+            strncat(buf, "|", sizeof(buf) - strlen(buf) - 1);
+        }
+        strncat(buf,
+                hashalg_map[i].name,
+                sizeof(buf) - strlen(buf) - 1);
+    }
+    return buf;
+}
+
+void print_usage(const char *prog) {
+    fprintf(stderr,
+        "Usage: %s [-a|--algorithm <%s>] [-f|--file <filename>] [text]\n",
+        prog,
+        algorithm_list());
+}
+
 arg_t parse_args(int argc, char *argv[]){
 
 	static struct option long_options[] = {
@@ -110,7 +144,7 @@ arg_t parse_args(int argc, char *argv[]){
 				break;
 			case '?':
 			default:
-				fprintf(stderr, "Usge: %s [-a|--algorithm <hashing algorithm>] [-f|--file <filename>] [text]\n", argv[0]);
+				print_usage(argv[0]);
 				exit(EXIT_FAILURE);
 			}
 	}
@@ -120,9 +154,8 @@ arg_t parse_args(int argc, char *argv[]){
 	}
 
 	if (args.text == NULL && args.filename == NULL){
-		fprintf(stderr, "Error: you must specify either -f/--file <directory> or a text to hash.\n"
-						"Usage: %s [-a|--alg <hashing algorithm>][-f|--file <filename>] [text]\n",
-				argv[0]);
+		fprintf(stderr, "Error: you must specify either -f/--file <directory> or a text to hash.\n");
+		print_usage(argv[0]);
 		exit(EXIT_FAILURE);
 	}
 	return args;
@@ -141,11 +174,50 @@ size_t hash_digest_size(hashalg_t alg){
 		case MD5_ALG:
 			return EVP_MD_size(EVP_md5());
 		case POSEIDON_ALG:
-			printf("Unimplemented: Poseidon hash is still not implemened\n");
-			exit(EXIT_FAILURE);
+			return SCALAR_BYTES;
 		default:
 			exit(EXIT_FAILURE);
 	}
+}
+
+static bool poseidon_hash_bytes(uint8_t *out, const uint8_t *buf, size_t buf_len){
+	PoseidonCtx ctx;
+	if (!poseidon_init(&ctx, POSEIDON_LEGACY, NULLNET_ID)) {
+		return false;
+	}
+
+	ROInput rin = {0};
+
+
+	rin.bits_capacity = buf_len * 8;
+	rin.bits = calloc(rin.bits_capacity, sizeof(uint8_t));
+	if (!rin.bits) return false;
+	
+	rin.fields_capacity = (rin.bits_capacity + FIELD_SIZE_IN_BITS - 1) / FIELD_SIZE_IN_BITS;
+
+	rin.fields = calloc(rin.fields_capacity * LIMBS_PER_FIELD,
+	sizeof(uint64_t));
+	if (!rin.fields) {
+		free(rin.bits);
+		return false;
+	}
+
+	// 4) Now we can safely add bytes (it won’t abort for capacity)
+	roinput_add_bytes(&rin, buf, buf_len);
+
+	// 5) Absorb the resulting Fields into the sponge:
+	poseidon_update(&ctx,
+	(const Field*)rin.fields, rin.fields_len);
+
+	// 6) Squeeze out your 32-byte digest
+	Scalar digest;
+	poseidon_digest(digest, &ctx);
+	memcpy(out, digest, SCALAR_BYTES);
+
+	// 7) Clean up
+	free(rin.bits);
+	free(rin.fields);
+	return true;
 }
 
 int hash_buffer(hashalg_t alg, unsigned char *buf, size_t buf_len, unsigned char *out_digest){
@@ -174,8 +246,7 @@ int hash_buffer(hashalg_t alg, unsigned char *buf, size_t buf_len, unsigned char
 			md = EVP_md5();
 			break;
 		default:
-			// Poseidon or unknown
-			return 0;
+			return poseidon_hash_bytes(out_digest, buf, buf_len);
 	}
 
 	EVP_MD_CTX *ctx = EVP_MD_CTX_new();
