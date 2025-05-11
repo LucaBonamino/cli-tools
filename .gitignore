@@ -7,3 +7,6 @@ testDir
 c-reference-signer
 c-reference-signerCopy
 c-reference-signer-changes.sh
+
+hashsum
+rename_spaces
