@@ -12,7 +12,7 @@ A collection of lightweight, self-contained command-line utilities written in C.
    - `sha512`  
    - `sha1`  
    - `md5`  
-   - `poseidon` - currently not usable from the tool. The source code will be taken from [c-reference-signer](https://github.com/MinaProtocol/c-reference-signer).
+   - `poseidon`
    
 ## Installation
 
@@ -56,14 +56,9 @@ Usage: hashsum [-a|--alg][-f|--file <filename>] [text]
 ```
 
 #### Use Poseidon hash
-Get the poseidon hash header file from the repository [c-reference-signer](https://github.com/MinaProtocol/c-reference-signer).
+Get the poseidon required files from the repository [c-reference-signer](https://github.com/MinaProtocol/c-reference-signer).
 ```bash
 git clone https://github.com/MinaProtocol/c-reference-signer.git
-cd c-reference-signer
-```
-and update the repo to resolve the conflict on the <i>zlib.h</i> header filed used in <i>src/hashsum.c</i>
-```bash
-bash c-reference-signer-changes.sh
 ```
 
 Compile <i>hashsum.c</i> providing the poseidon header file
