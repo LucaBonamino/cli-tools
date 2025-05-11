@@ -3,10 +3,17 @@
 #include <getopt.h>
 #include <string.h>
 #include <openssl/evp.h>
-#include <zlib.h>
 #include <assert.h>
 #include "poseidon.h"
 #include "crypto.h"  
+
+typedef unsigned long uLong;
+typedef unsigned char  Bytef;
+typedef unsigned int   uInt;
+
+#define Z_NULL ((const Bytef*)0)
+
+extern uLong crc32(uLong crc, const Bytef *buf, uInt len);
 
 typedef enum
 {
