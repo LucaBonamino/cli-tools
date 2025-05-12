@@ -188,13 +188,15 @@ static bool poseidon_hash_bytes(uint8_t *out, const uint8_t *buf, size_t buf_len
 		return false;
 	}
 
+	// Prepare the packing of bits into field elements
 	ROInput rin = {0};
 
-
+	// bits_capacity: maximum number of bits to pack
 	rin.bits_capacity = buf_len * 8;
 	rin.bits = calloc(rin.bits_capacity, sizeof(uint8_t));
 	if (!rin.bits) return false;
-	
+
+	// fields_capacity: how many FIELD_SIZE_IN_BITS ‐ sized chunks are needed (eeach field elements is of FIELD_SIZE_IN_BITS size)
 	rin.fields_capacity = (rin.bits_capacity + FIELD_SIZE_IN_BITS - 1) / FIELD_SIZE_IN_BITS;
 
 	rin.fields = calloc(rin.fields_capacity * LIMBS_PER_FIELD,
@@ -204,19 +206,18 @@ static bool poseidon_hash_bytes(uint8_t *out, const uint8_t *buf, size_t buf_len
 		return false;
 	}
 
-	// 4) Now we can safely add bytes (it won’t abort for capacity)
+	// Pack all bytes into field elements (rin.fields and rin.fields_len)
 	roinput_add_bytes(&rin, buf, buf_len);
 
-	// 5) Absorb the resulting Fields into the sponge:
+	// Absorb the the fields elements
 	poseidon_update(&ctx,
 	(const Field*)rin.fields, rin.fields_len);
 
-	// 6) Squeeze out your 32-byte digest
+	// Squeeze out your 32-byte digest
 	Scalar digest;
 	poseidon_digest(digest, &ctx);
 	memcpy(out, digest, SCALAR_BYTES);
 
-	// 7) Clean up
 	free(rin.bits);
 	free(rin.fields);
 	return true;
