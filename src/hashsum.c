@@ -116,13 +116,13 @@ arg_t parse_args(int argc, char *argv[]){
 	static struct option long_options[] = {
 		{"alg", required_argument, NULL, 'a'},
 		{"file", required_argument, NULL, 'f'},
-		{"verbose", no_argument, NULL, 'v'},
+		{"help", no_argument, NULL, 'h'},
 		{0, 0, NULL, 0}};
 
 	int opt, option_index = 0;
 	arg_t args = {.text = NULL, .filename = NULL, .alg = CRC32_ALG};
 
-	while ((opt = getopt_long(argc, argv, "a:f:", long_options, &option_index)) != -1) {
+	while ((opt = getopt_long(argc, argv, "a:f:h:", long_options, &option_index)) != -1) {
 		switch (opt){
 			case 'a':
 				hashalg_t found = NONE_ALG;
@@ -138,10 +138,12 @@ arg_t parse_args(int argc, char *argv[]){
 				}
 				args.alg = found;
 				break;
-			
 			case 'f':
 				args.filename = optarg;
 				break;
+			case 'h':
+			    print_usage(argv[0]);
+			    exit(EXIT_SUCCESS);
 			case '?':
 			default:
 				print_usage(argv[0]);
@@ -154,7 +156,7 @@ arg_t parse_args(int argc, char *argv[]){
 	}
 
 	if (args.text == NULL && args.filename == NULL){
-		fprintf(stderr, "Error: you must specify either -f/--file <directory> or a text to hash.\n");
+		fprintf(stderr, "Error: you must specify either -f/--file <filename> or a text to hash.\n");
 		print_usage(argv[0]);
 		exit(EXIT_FAILURE);
 	}

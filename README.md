@@ -36,6 +36,10 @@ mv replace_spaces ~/.local/bin
 replace_spaces --help
 Usage: rename_spaces [-v|--verbose] [-d|--dir <directory>] [filename]
 ```
+- <code>filename</code>: filename of file whose name to modify.
+- <code>directory</code>: directory where to locate the files whose names are to be modified.
+
+If both <code>filename</code> and <code>directory</code> are provided, <code>directory</code> is discarded.
 
 ### Hashsum
 Hash a text of the content of a file with one of the following alorithms
@@ -52,10 +56,21 @@ gcc -O2 -Wall src/hashsum.c -lssl -lcrypto -lz
 execute
 ```bash
 hashsum --help
-Usage: hashsum [-a|--alg][-f|--file <filename>] [text]
+Usage: ./hashsum [-a|--algorithm <sha1|sha256|sha512|md5|poseidon|checksum>] [-f|--file <filename>] [text]
 ```
+- <code>text</code>: text to hash.
+- <code>algorithm</code>: hashing algorithm to use.
+  - checksum: crc32
+  - sha256
+  - sha1
+  - md5
+  - poseidon sponge-like hash
+- <code>file</code>: file to hash.
 
-#### Use Poseidon hash
+If both <code>text</code> and <code>file</code> are provided, <code>file</code> is discarded.</br>
+File hashing is not implemented yet.
+
+#### How to use Poseidon hash
 Get the poseidon required files from the repository [c-reference-signer](https://github.com/MinaProtocol/c-reference-signer).
 ```bash
 git clone https://github.com/MinaProtocol/c-reference-signer.git
