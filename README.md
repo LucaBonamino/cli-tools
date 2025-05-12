@@ -51,7 +51,7 @@ Hash a text of the content of a file with one of the following alorithms
 
 compile with 
 ```bash
-gcc -O2 -Wall src/hashsum.c -lssl -lcrypto -lz
+gcc -O2 -Wall -o hashsum src/hashsum.c -lssl -lcrypto -lz
 ```
 execute
 ```bash
