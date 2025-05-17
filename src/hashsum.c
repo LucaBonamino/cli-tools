@@ -52,6 +52,7 @@ size_t hash_digest_size(hashalg_t alg);
 static bool poseidon_hash_bytes(uint8_t *out, const uint8_t *buf, size_t len);
 static const char *algorithm_list(void);
 void print_usage(const char *prog);
+int hash_file(hashalg_t algorithm,  char * filename, unsigned char *output_digest);
 
 int main(int argc, char *argv[]){
 
@@ -81,8 +82,21 @@ int main(int argc, char *argv[]){
 		free(hex);
 	}
 	else if (args.filename){
-		printf("Unimplemented: Filename hashing is still not implemented\n");
-		return EXIT_FAILURE;
+		int hash_func_out = hash_file(args.alg, args.filename, digest);
+    	if (!hash_func_out) {
+        	fprintf(stderr, "File hashing failed\n");
+        	free(digest);
+        	return EXIT_FAILURE;
+    	}
+
+    	char *hex = malloc(dlen * 2 + 1);
+    	for (size_t i = 0; i < dlen; i++) {
+        	sprintf(hex + i * 2, "%02x", digest[i]);
+    	}
+    	hex[dlen * 2] = '\0';
+    	printf("Digest: %s\n", hex);
+    	free(hex);
+		return EXIT_SUCCESS;
 	}
 	
 	free(digest);
@@ -264,4 +278,103 @@ int hash_buffer(hashalg_t alg, unsigned char *buf, size_t buf_len, unsigned char
 	}
 	EVP_MD_CTX_free(ctx);
 	return 1;
+}
+
+int hash_file(hashalg_t algorithm,  char * filename, unsigned char *output_digest){
+	FILE *file = fopen(filename, "rb");
+	if (!file){
+		perror("fopen");
+		return 0;
+	}
+
+	const EVP_MD *md = NULL;
+	EVP_MD_CTX *ctx = NULL;
+
+	unsigned char buffer[40696];
+
+	size_t bytes_read;
+
+    if (algorithm == CRC32_ALG) {
+        uLong crc = crc32(0L, Z_NULL, 0);
+        while ((bytes_read = fread(buffer, 1, sizeof(buffer), file)) > 0) {
+            crc = crc32(crc, buffer, bytes_read);
+        }
+        if (ferror(file)) {
+            fclose(file);
+            return 0;
+        }
+        output_digest[0] = (crc >> 24) & 0xFF;
+        output_digest[1] = (crc >> 16) & 0xFF;
+        output_digest[2] = (crc >> 8) & 0xFF;
+        output_digest[3] = (crc) & 0xFF;
+        fclose(file);
+        return 1;
+    }
+
+    switch (algorithm) {
+        case SHA1_ALG: md = EVP_sha1(); break;
+        case SHA256_ALG: md = EVP_sha256(); break;
+        case SHA512_ALG: md = EVP_sha512(); break;
+        case MD5_ALG: md = EVP_md5(); break;
+		case POSEIDON_ALG:
+			fseek(file, 0, SEEK_END);
+            long fsize = ftell(file);
+            rewind(file);
+
+            unsigned char *data = malloc(fsize);
+            if (!data) {
+                fclose(file);
+                return 0;
+            }
+
+            if (fread(data, 1, fsize, file) != fsize) {
+                perror("fread");
+                free(data);
+                fclose(file);
+                return 0;
+            }
+
+            int poseidon_hash_success = poseidon_hash_bytes(output_digest, data, fsize);
+			
+            free(data);
+            fclose(file);
+            if (!poseidon_hash_success)
+				return 0;
+			return 1;
+        default:
+			return 0;
+			
+    }
+
+    ctx = EVP_MD_CTX_new();
+    if (!ctx) {
+        fclose(file);
+        return 0;
+    }
+
+    if (EVP_DigestInit_ex(ctx, md, NULL) != 1) {
+        EVP_MD_CTX_free(ctx);
+        fclose(file);
+        return 0;
+    }
+
+    while ((bytes_read = fread(buffer, 1, sizeof(buffer), file)) > 0) {
+        if (EVP_DigestUpdate(ctx, buffer, bytes_read) != 1) {
+            EVP_MD_CTX_free(ctx);
+            fclose(file);
+            return 0;
+        }
+    }
+
+    if (ferror(file)) {
+        perror("fread");
+        EVP_MD_CTX_free(ctx);
+        fclose(file);
+        return 0;
+    }
+
+    EVP_DigestFinal_ex(ctx, output_digest, NULL);
+    EVP_MD_CTX_free(ctx);
+    fclose(file);
+    return 1;
 }
