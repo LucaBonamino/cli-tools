@@ -53,6 +53,7 @@ static bool poseidon_hash_bytes(uint8_t *out, const uint8_t *buf, size_t len);
 static const char *algorithm_list(void);
 void print_usage(const char *prog);
 int hash_file(hashalg_t algorithm,  char * filename, unsigned char *output_digest);
+int from_digest_to_hex_string(unsigned char *digest, int size, char *output_hex);
 
 int main(int argc, char *argv[]){
 
@@ -74,10 +75,7 @@ int main(int argc, char *argv[]){
 		}
 		
 		char *hex = malloc(dlen*2 + 1);
-		for (size_t i=0; i<dlen; i++) {
-			sprintf(hex + i*2, "%02x", digest[i]);
-		}
-		hex[dlen*2] = '\0';
+		from_digest_to_hex_string(digest, dlen, hex);
 		printf("Digest: %s\n", hex);
 		free(hex);
 	}
@@ -90,10 +88,7 @@ int main(int argc, char *argv[]){
     	}
 
     	char *hex = malloc(dlen * 2 + 1);
-    	for (size_t i = 0; i < dlen; i++) {
-        	sprintf(hex + i * 2, "%02x", digest[i]);
-    	}
-    	hex[dlen * 2] = '\0';
+		from_digest_to_hex_string(digest, dlen, hex);
     	printf("Digest: %s\n", hex);
     	free(hex);
 		return EXIT_SUCCESS;
@@ -101,6 +96,15 @@ int main(int argc, char *argv[]){
 	
 	free(digest);
 	return EXIT_SUCCESS;
+}
+
+
+int from_digest_to_hex_string(unsigned char *digest, int size, char *output_hex){
+	for (size_t i = 0; i < size; i++) {
+        	sprintf(output_hex + i * 2, "%02x", digest[i]);
+    	}
+    	output_hex[size * 2] = '\0';
+	return 1;
 }
 
 static const char *algorithm_list(void) {
