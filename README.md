@@ -68,7 +68,6 @@ Usage: ./hashsum [-a|--algorithm <sha1|sha256|sha512|md5|poseidon|checksum>] [-f
 - <code>file</code>: file to hash.
 
 If both <code>text</code> and <code>file</code> are provided, <code>file</code> is discarded.</br>
-File hashing is not implemented yet.
 
 #### How to use Poseidon hash
 Get the poseidon required files from the repository [c-reference-signer](https://github.com/MinaProtocol/c-reference-signer).
