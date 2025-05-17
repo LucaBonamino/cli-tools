@@ -1,15 +1,3 @@
-.PHONY: setup-poseidon
-setup-poseidon:
-	@git clone https://github.com/MinaProtocol/c-reference-signer.git
-	@cp -R c-reference-signer c-reference-signer-backup
-	@bash c-reference-signer-changes.sh
-
-.PHONY: revert-c-signer-changes
-revert-c-signer-changes:
-	@rm -rf c-reference-signer
-	@cp -R c-reference-signerCopy c-reference-signer
-
-
 .PHONY: compile-hashsum
 compile-hashsum:
 	@gcc -O2 -Wall \

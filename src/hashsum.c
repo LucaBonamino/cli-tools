@@ -317,6 +317,7 @@ int hash_file(hashalg_t algorithm,  char * filename, unsigned char *output_diges
         case SHA512_ALG: md = EVP_sha512(); break;
         case MD5_ALG: md = EVP_md5(); break;
 		case POSEIDON_ALG:
+			// With Poseion, hash the file all at once
 			fseek(file, 0, SEEK_END);
             long fsize = ftell(file);
             rewind(file);
